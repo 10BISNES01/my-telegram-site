@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background: url('https://i.gifer.com/7Ik1.gif') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .rocket-container {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rocket img {
+            width: 100px;
+            height: auto;
+        }
+
+        .coefficient {
+            font-size: 32px;
+            margin-top: 10px;
+            text-shadow: 0 0 10px black;
+        }
+
+        .balance {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .controls input[type="number"] {
+            padding: 5px;
+            margin: 5px;
+            font-size: 16px;
+            width: 100px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translate(-50%, 0);
+            }
+            50% {
+                transform: translate(-50%, -20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="balance" id="balance">Balance: $1000</div>
+        <div class="rocket-container">
+            <div class="rocket">
+                <img src="https://i.gifer.com/xt.gif" alt="Rocket">
+            </div>
+            <div class="coefficient" id="coefficient">
+                <span>1.00x</span>
+            </div>
+        </div>
+        <div class="controls">
+            <input type="number" id="betAmount" placeholder="Bet Amount" min="1" max="1000">
+            <button onclick="placeBet()">Place Bet</button>
+            <button id="cashOutButton" onclick="cashOut()">Cash Out</button>
+        </div>
+    </div>
+
+    <script>
+        let balance = 1000;
+        let coefficient = 1.0;
+        let isGameRunning = false;
+        let interval;
+        let betAmount = 0;
+        let potentialWinnings = 0;
+
+        function startGame() {
+            isGameRunning = true;
+            coefficient = 1.0;
+            potentialWinnings = betAmount;
+            updateCoefficient();
+
+            interval = setInterval(() => {
+                if (isGameRunning) {
+                    coefficient += 0.01;
+                    potentialWinnings = betAmount * coefficient;
+                    updateCoefficient();
+
+                    if (Math.random() < 0.01) { // 1% chance to crash
+                        endGame();
+                    }
+                }
+            }, 100);
+        }
+
+        function endGame() {
+            isGameRunning = false;
+            clearInterval(interval);
+            alert('Game Over! Coefficient: ' + coefficient.toFixed(2) + 'x');
+        }
+
+        function placeBet() {
+            if (!isGameRunning) {
+                betAmount = parseFloat(document.getElementById('betAmount').value);
+
+                if (isNaN(betAmount) || betAmount <= 0 || betAmount > balance) {
+                    alert('Invalid bet amount');
+                    return;
+                }
+
+                balance -= betAmount;
+                updateBalance();
+                startGame();
+            }
+        }
+
+        function cashOut() {
+            if (isGameRunning) {
+                isGameRunning = false;
+                clearInterval(interval);
+
+                balance += potentialWinnings;
+                updateBalance();
+                alert('You cashed out at ' + coefficient.toFixed(2) + 'x. Winnings: $' + potentialWinnings.toFixed(2));
+            }
+        }
+
+        function updateBalance() {
+            document.getElementById('balance').textContent = 'Balance: $' + balance.toFixed(2);
+        }
+
+        function updateCoefficient() {
+            document.getElementById('coefficient').querySelector('span').textContent = coefficient.toFixed(2) + 'x';
+            document.getElementById('cashOutButton').textContent = `Cash Out ($${potentialWinnings.toFixed(2)})`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мины</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0d1023;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .mines-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            background: #12172b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .mine {
+            width: 60px;
+            height: 60px;
+            background: #1a2039;
+            border: 2px solid #1f2949;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .mine:hover {
+            background: #283158;
+            transform: scale(1.1);
+        }
+
+        .mine.clicked {
+            background: #f44336; /* Цвет для проигрыша */
+        }
+
+        .mine.safe {
+            background: #4caf50; /* Цвет для выигрыша */
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-info h1 {
+            margin-bottom: 10px;
+        }
+
+        .game-info button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #1e90ff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .game-info button:hover {
+            background: #0078d4;
+        }
+
+        .control-panel {
+            margin-top: 20px;
+            background: #12172b;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-panel .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .control-panel .info-row span {
+            font-size: 16px;
+        }
+
+        .control-panel .bet-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-panel button {
+            padding: 10px 20px;
+            background: #1e90ff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .control-panel button:hover {
+            background: #0078d4;
+        }
+
+        .control-panel .play-button {
+            width: 100%;
+            background: #007bff;
+        }
+
+        .control-panel .play-button:hover {
+            background: #0056b3;
+        }
+
+        .control-panel .take-button {
+            background: #28a745;
+        }
+
+        .control-panel .take-button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-info">
+        <h1>Мины</h1>
+        <p>Выберите безопасные ячейки и избегайте мин!</p>
+    </div>
+
+    <div class="mines-container" id="minesContainer"></div>
+
+    <div class="control-panel">
+        <div class="info-row">
+            <span>Макс. выигрыш: <strong>109 825 ₴</strong></span>
+            <span>Ловушки: <strong id="trapCount">3</strong></span>
+        </div>
+        <div class="bet-controls">
+            <button onclick="decreaseTrap()">-</button>
+            <span id="trapDisplay">Ловушки: 3</span>
+            <button onclick="increaseTrap()">+</button>
+        </div>
+        <div class="bet-controls">
+            <button onclick="decreaseBet()">-</button>
+            <span id="betAmount">50 ₴</span>
+            <button onclick="increaseBet()">+</button>
+        </div>
+        <button class="play-button" id="playButton" onclick="startGame()">Играть</button>
+        <button class="take-button" id="takeButton" style="display: none;" onclick="takeMoney()">Забрать</button>
+    </div>
+
+    <script>
+        const gridSize = 25; // 5x5
+        let mines = [];
+        let betAmount = 50;
+        let trapCount = 3;
+        let currentMultiplier = 1.08;
+        let currentRound = 0;
+
+        const multipliers = [1.08, 1.23, 1.42, 1.64, 1.92, 2.25, 2.68]; // Множители для каждого раунда
+
+        function startGame() {
+            const container = document.getElementById('minesContainer');
+            const playButton = document.getElementById('playButton');
+            const takeButton = document.getElementById('takeButton');
+            container.innerHTML = '';
+            currentRound = 0;
+            betAmount = parseFloat(document.getElementById('betAmount').textContent);
+            mines = Array.from({ length: gridSize }, () => Math.random() < trapCount / gridSize);
+
+            for (let i = 0; i < gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'mine';
+                cell.onclick = () => handleClick(cell, i);
+                container.appendChild(cell);
+            }
+
+            currentMultiplier = multipliers[currentRound];
+            playButton.textContent = `${(betAmount * currentMultiplier).toFixed(2)} ₴`;
+            playButton.style.display = 'block';
+            takeButton.style.display = 'none';
+        }
+
+        function handleClick(cell, index) {
+            if (mines[index]) {
+                cell.classList.add('clicked');
+                alert('Вы проиграли!');
+                startGame();
+            } else {
+                cell.classList.add('safe');
+                currentRound++;
+                if (currentRound < multipliers.length) {
+                    currentMultiplier = multipliers[currentRound];
+                    const playButton = document.getElementById('playButton');
+                    playButton.textContent = `${(betAmount * currentMultiplier).toFixed(2)} ₴`;
+                } else {
+                    alert('Поздравляем, вы выиграли!');
+                    startGame();
+                }
+            }
+        }
+
+        function increaseBet() {
+            betAmount += 10;
+            updateBetDisplay();
+        }
+
+        function decreaseBet() {
+            if (betAmount > 10) {
+                betAmount -= 10;
+                updateBetDisplay();
+            }
+        }
+
+        function updateBetDisplay() {
+            document.getElementById('betAmount').textContent = `${betAmount} ₴`;
+        }
+
+        function increaseTrap() {
+            if (trapCount < 23) {
+                trapCount++;
+                updateTrapDisplay();
+            }
+        }
+
+        function decreaseTrap() {
+            if (trapCount > 1) {
+                trapCount--;
+                updateTrapDisplay();
+            }
+        }
+
+        function updateTrapDisplay() {
+            document.getElementById('trapCount').textContent = trapCount;
+            document.getElementById('trapDisplay').textContent = `Ловушки: ${trapCount}`;
+        }
+
+        function takeMoney() {
+            const playButton = document.getElementById('playButton');
+            alert(`Вы забрали ${playButton.textContent} на баланс!`);
+            startGame();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

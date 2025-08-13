@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пополнение Баланса</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: #fff;
+            text-align: center;
+        }
+
+        header {
+            padding: 20px;
+            background: #1a1a1a;
+            color: #f1c40f;
+            font-size: 24px;
+        }
+
+        .methods-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .method-card {
+            background: #1f1f1f;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s, background 0.3s;
+            cursor: pointer;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+            background: #292929;
+        }
+
+        .method-card img {
+            width: 80px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .method-card span {
+            display: block;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>Выберите способ пополнения</header>
+    <div class="methods-container">
+        <div class="method-card" onclick="alert('Пополнение через Mastercard')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard">
+            <span>Mastercard</span>
+        </div>
+        <div class="method-card" onclick="alert('Пополнение через Visa')">
+            <img src="https://w7.pngwing.com/pngs/308/426/png-transparent-visa-logo-credit-card-visa-logo-payment-visa-blue-text-trademark.png" alt="Visa">
+            <span>Visa</span>
+        </div>
+        <div class="method-card" onclick="alert('Пополнение через FreeKassa')">
+            <img src="https://via.placeholder.com/80" alt="FreeKassa">
+            <span>FreeKassa</span>
+        </div>
+        <div class="method-card" onclick="alert('Пополнение через USDT')">
+            <img src="https://via.placeholder.com/80" alt="USDT">
+            <span>USDT</span>
+        </div>
+        <div class="method-card" onclick="alert('Пополнение через BTC')">
+            <img src="https://via.placeholder.com/80" alt="Bitcoin">
+            <span>Bitcoin</span>
+        </div>
+        <div class="method-card" onclick="alert('Пополнение через TON')">
+            <img src="https://via.placeholder.com/80" alt="TON">
+            <span>TON</span>
+        </div>
+        <div class="method-card" onclick="alert('Пополнение через Dogecoin')">
+            <img src="https://via.placeholder.com/80" alt="Dogecoin">
+            <span>Dogecoin</span>
+        </div>
+        <div class="method-card" onclick="alert('Пополнение через PayPal')">
+            <img src="https://via.placeholder.com/80" alt="PayPal">
+            <span>PayPal</span>
+        </div>
+    </div>
+</body>
+</html>
