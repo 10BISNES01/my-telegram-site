@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crystal — Профиль & Админка</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50:'#f0f9ff',100:'#e0f2fe',200:'#bae6fd',300:'#7dd3fc',
+              400:'#38bdf8',500:'#0ea5e9',600:'#0284c7',700:'#0369a1',
+              800:'#075985',900:'#0c4a6e'
+            },
+            crystal:{
+              500:'#6ee7f9',600:'#22d3ee',700:'#06b6d4'
+            }
+          },
+          boxShadow:{ soft:'0 8px 30px rgba(0,0,0,0.1)' }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar{height:10px;width:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(100,116,139,.4);border-radius:8px}
+    ::-webkit-scrollbar-track{background:transparent}
+    .loading{opacity:0.6;pointer-events:none}
+    .spinner{
+      border:2px solid #f3f3f3;
+      border-top:2px solid #0ea5e9;
+      border-radius:50%;
+      width:20px;
+      height:20px;
+      animation:spin 1s linear infinite;
+      display:inline-block;
+    }
+    @keyframes spin{
+      0%{transform:rotate(0deg)}
+      100%{transform:rotate(360deg)}
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100">
+<div id="app" class="min-h-screen">
+
+  <!-- Topbar -->
+  <header class="sticky top-0 z-30 backdrop-blur bg-white/70 dark:bg-slate-900/60 border-b border-slate-200/60 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-cyan-400 via-fuchsia-400 to-indigo-500 shadow-soft"></div>
+        <div>
+          <div class="text-xl font-bold leading-5">Crystal</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Профиль & Админ-панель</div>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-2">
+        <button id="themeBtn" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm">Тема</button>
+        <button id="adminExitBtn" class="hidden px-3 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-sm">Выход</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Геро-баннер Crystal -->
+  <section class="relative">
+    <div class="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-fuchsia-400/20 to-indigo-400/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div class="rounded-3xl bg-gradient-to-br from-white/80 to-white/30 dark:from-slate-800/60 dark:to-slate-800/30 border border-white/60 dark:border-slate-700 shadow-soft p-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-indigo-500">Crystal</span>
+          </h1>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Элегантная панель игрока и мощная админка</p>
+        </div>
+        <div class="hidden sm:flex items-center gap-3">
+          <span class="text-xs px-2 py-1 rounded-lg bg-cyan-100 text-cyan-700 dark:bg-cyan-400/10 dark:text-cyan-300 border border-cyan-200/60">v1.0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabs -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
+    <div class="flex gap-2 mb-6">
+      <button data-tab="profile" class="tabBtn px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">Профиль</button>
+      <button data-tab="wallet" class="tabBtn px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">Кошелёк</button>
+      <button data-tab="security" class="tabBtn px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">Безопасность</button>
+      <button data-tab="admin" id="adminTab" class="tabBtn px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">Админка</button>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <section id="tab-profile" class="tab">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 grid gap-6">
+          <!-- User card -->
+          <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+            <div class="flex items-start gap-4">
+              <img id="avatar" class="w-16 h-16 rounded-2xl object-cover" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Player" alt="avatar"/>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <h2 id="username" class="text-xl font-semibold">Загрузка...</h2>
+                  <span id="vipBadge" class="text-xs px-2 py-1 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300 border border-amber-200/60">VIP 0</span>
+                </div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">UID: <span id="uid">Загрузка...</span> · Email: <span id="email">Загрузка...</span></div>
+              </div>
+              <button id="editProfileBtn" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm">Редактировать</button>
+            </div>
+            <div class="mt-4">
+              <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+                <div id="vipProgress" class="h-2 rounded-full bg-gradient-to-r from-primary-500 to-indigo-600" style="width: 0%"></div>
+              </div>
+              <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <span>Опыт: <span id="xp">0 / 0</span></span>
+                <span>До VIP2: <span id="toNext">0</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transactions -->
+          <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold">История транзакций</h3>
+              <div class="flex gap-2">
+                <input id="txSearch" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm" placeholder="Поиск..."/>
+                <select id="txFilter" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
+                  <option value="all">Все</option>
+                  <option value="deposit">Депозит</option>
+                  <option value="withdraw">Вывод</option>
+                  <option value="bet">Ставка</option>
+                  <option value="win">Выигрыш</option>
+                </select>
+              </div>
+            </div>
+            <div class="overflow-auto rounded-xl border border-slate-200 dark:border-slate-700">
+              <table class="min-w-full text-sm">
+                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500">
+                  <tr>
+                    <th class="text-left p-3">ID</th>
+                    <th class="text-left p-3">Дата</th>
+                    <th class="text-left p-3">Тип</th>
+                    <th class="text-left p-3">Сумма</th>
+                    <th class="text-left p-3">Валюта</th>
+                    <th class="text-left p-3">Статус</th>
+                  </tr>
+                </thead>
+                <tbody id="txTable">
+                  <tr><td colspan="6" class="p-4 text-center text-slate-500">Загрузка транзакций...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar: balances & actions -->
+        <aside class="grid gap-6">
+          <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+            <h3 class="text-lg font-semibold mb-4">Баланс</h3>
+            <div id="balances" class="grid grid-cols-2 gap-3 text-sm">
+              <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40">
+                <div class="text-xs text-slate-500">Загрузка...</div>
+                <div class="text-lg font-semibold">0.00</div>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button id="depositBtn" class="flex-1 px-3 py-2 rounded-xl bg-primary-600 text-white">Пополнить</button>
+              <button id="withdrawBtn" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">Вывести</button>
+            </div>
+          </div>
+
+          <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+            <h3 class="text-lg font-semibold mb-3">KYC & Настройки</h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex items-center justify-between">
+                <span>Верификация: <b id="kycStatus" class="font-semibold">Не пройдена</b></span>
+                <button id="startKycBtn" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">Загрузить</button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>2FA (Google Auth)</span>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="twofa" type="checkbox" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-200 peer-checked:bg-primary-600 rounded-full relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+                </label>
+              </div>
+              <div>
+                <label class="text-xs text-slate-500">Язык интерфейса</label>
+                <select class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
+                  <option>Русский</option>
+                  <option>Українська</option>
+                  <option>English</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- WALLET TAB -->
+    <section id="tab-wallet" class="tab hidden">
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <h3 class="text-lg font-semibold mb-4">Депозит / Вывод</h3>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <div class="text-sm mb-2">Выберите валюту</div>
+              <select id="walletCurrency" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm"></select>
+            </div>
+            <div>
+              <div class="text-sm mb-2">Тип операции</div>
+              <select id="walletOp" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
+                <option value="deposit">Депозит</option>
+                <option value="withdraw">Вывод</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <div class="text-sm mb-2">Сумма</div>
+              <input id="walletAmount" type="number" min="1" step="0.01" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm" placeholder="Например, 100" />
+            </div>
+            <div class="sm:col-span-2 flex gap-2">
+              <button id="walletSubmit" class="px-4 py-2 rounded-xl bg-primary-600 text-white">Подтвердить</button>
+              <div id="walletMsg" class="text-sm self-center"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <h3 class="text-lg font-semibold mb-4">Реквизиты</h3>
+          <div class="space-y-3 text-sm">
+            <div>
+              <div class="text-xs text-slate-500">USDT (TRC20)</div>
+              <div class="font-mono break-all">TXdemo1q2w3e4r5t6y7u8i9o</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500">UAH (Карта)</div>
+              <div class="font-mono">5375 **** **** 1234</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500">BTC</div>
+              <div class="font-mono break-all">bc1qdemo1234567890example</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECURITY TAB -->
+    <section id="tab-security" class="tab hidden">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <h3 class="text-lg font-semibold mb-4">Активность входов</h3>
+          <ul id="loginList" class="space-y-2 text-sm">
+            <li class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between">
+              <span>Загрузка...</span>
+              <span class="text-slate-500">IP: ...</span>
+            </li>
+          </ul>
+        </div>
+        <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <h3 class="text-lg font-semibold mb-2">Пароль</h3>
+          <div class="text-sm text-slate-500 mb-4">Смените пароль для безопасности аккаунта</div>
+          <div class="grid gap-3">
+            <input id="passOld" type="password" placeholder="Старый пароль" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm" />
+            <input id="passNew" type="password" placeholder="Новый пароль" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm" />
+            <input id="passNew2" type="password" placeholder="Повторите новый пароль" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm" />
+            <button id="passChangeBtn" class="px-4 py-2 rounded-xl bg-primary-600 text-white w-fit">Сменить пароль</button>
+            <div id="passMsg" class="text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN TAB -->
+    <section id="tab-admin" class="tab hidden">
+      <!-- Admin header -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold">Админ-панель</h3>
+        <div class="flex items-center gap-2">
+          <button id="adminLogoutBtn" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">Выход</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid md:grid-cols-4 gap-4 mb-6">
+        <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-slate-500">Пользователи</div>
+          <div id="statUsers" class="text-2xl font-semibold">0</div>
+        </div>
+        <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-slate-500">Активные сегодня</div>
+          <div id="statActive" class="text-2xl font-semibold">0</div>
+        </div>
+        <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-slate-500">GGR</div>
+          <div id="statGgr" class="text-2xl font-semibold">$0</div>
+        </div>
+        <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-slate-500">Выводы в ожидании</div>
+          <div id="statPending" class="text-2xl font-semibold">0</div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Users table -->
+        <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Пользователи</h3>
+            <div class="flex gap-2">
+              <input id="userSearch" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm" placeholder="Поиск"/>
+              <select id="roleFilter" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
+                <option value="all">Все роли</option>
+                <option value="user">Игрок</option>
+                <option value="admin">Админ</option>
+              </select>
+            </div>
+          </div>
+          <div class="overflow-auto rounded-xl border border-slate-200 dark:border-slate-700">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500">
+                <tr>
+                  <th class="text-left p-3">UID</th>
+                  <th class="text-left p-3">Ник</th>
+                  <th class="text-left p-3">Баланс (USDT)</th>
+                  <th class="text-left p-3">Роль</th>
+                  <th class="text-left p-3">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable">
+                <tr><td colspan="5" class="p-4 text-center text-slate-500">Загрузка пользователей...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Transactions moderation -->
+        <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Модерация заявок</h3>
+            <button id="bulkApprove" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">Одобрить все выводы</button>
+          </div>
+          <div class="overflow-auto rounded-xl border border-slate-200 dark:border-slate-700">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500">
+                <tr>
+                  <th class="text-left p-3">ID</th>
+                  <th class="text-left p-3">UID</th>
+                  <th class="text-left p-3">Сумма</th>
+                  <th class="text-left p-3">Валюта</th>
+                  <th class="text-left p-3">Статус</th>
+                  <th class="text-left p-3">Действие</th>
+                </tr>
+              </thead>
+              <tbody id="wdTable">
+                <tr><td colspan="6" class="p-4 text-center text-slate-500">Загрузка заявок...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Game toggles -->
+        <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <h3 class="text-lg font-semibold mb-4">Игры</h3>
+          <div id="gamesList" class="grid sm:grid-cols-2 gap-3 text-sm">
+            <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <div>Загрузка игр...</div>
+              <div class="w-11 h-6 bg-slate-200 rounded-full relative"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Site settings -->
+        <div class="rounded-3xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+          <h3 class="text-lg font-semibold mb-4">Настройки сайта</h3>
+          <div class="grid sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <label class="text-xs text-slate-500">Мин. вывод (USDT)</label>
+              <input id="minWithdraw" type="number" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" value="10" />
+            </div>
+            <div>
+              <label class="text-xs text-slate-500">Комиссия вывода (%)</label>
+              <input id="feeWithdraw" type="number" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" value="1.5" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="text-xs text-slate-500">Сообщение пользователям</label>
+              <div class="flex gap-2">
+                <input id="broadcastMsg" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" placeholder="Например: Тех. работы в 03:00"/>
+                <button id="sendBroadcast" class="px-3 py-2 rounded-xl bg-primary-600 text-white">Отправить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Modals -->
+<div id="modal" class="hidden fixed inset-0 z-40 items-center justify-center">
+  <div class="absolute inset-0 bg-black/50"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 w-[min(640px,92vw)] shadow-soft">
+    <div class="flex items-center justify-between mb-4">
+      <h3 id="modalTitle" class="text-lg font-semibold">Модальное окно</h3>
+      <button id="modalClose" class="px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">✕</button>
+    </div>
+    <div id="modalBody" class="space-y-3 text-sm"></div>
+    <div class="mt-4 flex justify-end gap-2">
+      <button id="modalCancel" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">Отмена</button>
+      <button id="modalOk" class="px-3 py-2 rounded-xl bg-primary-600 text-white">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 z-50"></div>
+
+<script>
+/* ===== Helpers ===== */
+const $ = (q,scope=document)=>scope.querySelector(q);
+const $$ = (q,scope=document)=>Array.from(scope.querySelectorAll(q));
+const storage = {
+  get(k,def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def } },
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)) }
+};
+const toast = (msg, isError = false)=>{
+  const node = document.createElement('div');
+  node.className = `mb-2 px-4 py-2 rounded-xl ${isError ? 'bg-rose-600' : 'bg-slate-900 dark:bg-white dark:text-slate-900'} text-white shadow-soft`;
+  node.textContent = msg;
+  $('#toast').appendChild(node);
+  setTimeout(()=>node.remove(), 3000);
+};
+
+/* ===== API Integration ===== */
+const API_BASE = 'https://your-vercel-app.vercel.app/api'; // Замените на ваш API URL
+
+// Функции для работы с API
+const api = {
+  async request(endpoint, options = {}) {
+    const url = `${API_BASE}${endpoint}`;
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API Request failed:', error);
+      toast('Ошибка соединения с сервером', true);
+      throw error;
+    }
+  },
+
+  // Получить данные пользователя
+  async getUser() {
+    return this.request('/user');
+  },
+
+  // Обновить данные пользователя
+  async updateUser(data) {
+    return this.request('/user', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Получить транзакции
+  async getTransactions() {
+    return this.request('/transactions');
+  },
+
+  // Создать транзакцию
+  async createTransaction(data) {
+    return this.request('/transactions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Админ: получить всех пользователей
+  async getAdminUsers() {
+    return this.request('/admin/users');
+  },
+
+  // Админ: обновить данные пользователя
+  async updateAdminUser(uid, data) {
+    return this.request(`/admin/users/${uid}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Админ: получить заявки на вывод
+  async getWithdrawals() {
+    return this.request('/admin/withdrawals');
+  },
+
+  // Админ: обновить статус заявки
+  async updateWithdrawal(id, status) {
+    return this.request(`/admin/withdrawals/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  // Админ: получить настройки
+  async getSettings() {
+    return this.request('/admin/settings');
+  },
+
+  // Админ: обновить настройки
+  async updateSettings(data) {
+    return this.request('/admin/settings', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Админ: получить игры
+  async getGames() {
+    return this.request('/admin/games');
+  },
+
+  // Админ: обновить игру
+  async updateGame(key, data) {
+    return this.request(`/admin/games/${key}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// Глобальное состояние приложения
+let APP_STATE = {
+  currentUser: null,
+  transactions: [],
+  admin: {
+    users: [],
+    withdrawals: [],
+    games: [],
+    settings: {},
+    stats: {},
+  },
+  isAdmin: false,
+  loading: false,
+};
+
+// Функции для работы с состоянием приложения
+const state = {
+  async loadUser() {
+    try {
+      APP_STATE.currentUser = await api.getUser();
+      renderProfile();
+    } catch (error) {
+      console.error('Failed to load user:', error);
+    }
+  },
+
+  async loadTransactions() {
+    try {
+      APP_STATE.transactions = await api.getTransactions();
+      renderTx();
+    } catch (error) {
+      console.error('Failed to load transactions:', error);
+    }
+  },
+
+  async loadAdminData() {
+    if (!APP_STATE.isAdmin) return;
+    
+    try {
+      // Загружаем данные параллельно для лучшей производительности
+      const [users, withdrawals, games, settings] = await Promise.all([
+        api.getAdminUsers(),
+        api.getWithdrawals(),
+        api.getGames(),
+        api.getSettings(),
+      ]);
+      
+      APP_STATE.admin = {
+        users,
+        withdrawals,
+        games,
+        settings,
+        stats: {
+          users: users.length,
+          active: Math.floor(users.length * 0.6), // Примерная логика
+          ggr: withdrawals.filter(w => w.status === 'approved').reduce((sum, w) => sum + w.amount, 0),
+          pending: withdrawals.filter(w => w.status === 'pending').length,
+        },
+      };
+      
+      renderAdmin();
+    } catch (error) {
+      console.error('Failed to load admin data:', error);
+    }
+  },
+
+  async updateUser(data) {
+    try {
+      APP_STATE.currentUser = await api.updateUser(data);
+      renderProfile();
+      toast('Данные обновлены');
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      toast('Ошибка при обновлении данных', true);
+    }
+  },
+
+  async createTransaction(data) {
+    try {
+      const transaction = await api.createTransaction(data);
+      APP_STATE.transactions.unshift(transaction);
+      renderTx();
+      
+      // Обновляем баланс пользователя
+      if (APP_STATE.currentUser) {
+        if (data.type === 'deposit') {
+          APP_STATE.currentUser.balances[data.cur] = 
+            (APP_STATE.currentUser.balances[data.cur] || 0) + data.amount;
+        } else if (data.type === 'withdraw') {
+          APP_STATE.currentUser.balances[data.cur] = 
+            (APP_STATE.currentUser.balances[data.cur] || 0) - data.amount;
+        }
+        renderProfile();
+      }
+      
+      toast('Транзакция создана');
+      return transaction;
+    } catch (error) {
+      console.error('Failed to create transaction:', error);
+      toast('Ошибка при создании транзакции', true);
+      throw error;
+    }
+  },
+};
+
+/* ===== Theme ===== */
+function loadTheme(){
+  const t = storage.get('theme','dark');
+  if(t==='dark') document.documentElement.classList.add('dark');
+  else document.documentElement.classList.remove('dark');
+}
+function toggleTheme(){
+  const isDark = document.documentElement.classList.toggle('dark');
+  storage.set('theme', isDark ? 'dark' : 'light');
+}
+
+/* ===== Tabs ===== */
+function showTab(id){
+  $$('.tab').forEach(s=>s.classList.add('hidden'));
+  const tab = $('#tab-'+id);
+  if(!tab) return;
+  tab.classList.remove('hidden');
+  $$('.tabBtn').forEach(b=>b.classList.remove('ring-2','ring-primary-500'));
+  const btn = $(`.tabBtn[data-tab="${id}"]`);
+  btn?.classList.add('ring-2','ring-primary-500');
+  
+  // Загружаем данные для вкладки при ее активации
+  if (id === 'profile') {
+    if (!APP_STATE.currentUser) state.loadUser();
+    if (APP_STATE.transactions.length === 0) state.loadTransactions();
+  } else if (id === 'admin' && APP_STATE.isAdmin) {
+    state.loadAdminData();
+  }
+}
+
+/* ===== Admin Lock ===== */
+function ensureAdminAccess(){
+  if(APP_STATE.isAdmin){ 
+    showTab('admin'); 
+    $('#adminExitBtn').classList.remove('hidden'); 
+    return; 
+  }
+  
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div class="grid gap-3">
+      <div class="text-sm">Введите пароль для входа в админку</div>
+      <input id="adminPassInput" type="password" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" placeholder="Пароль" />
+    </div>
+  `;
+  openModal('Доступ в админку', wrap, async ()=>{
+    const val = $('#adminPassInput').value;
+    try {
+      // В реальном приложении здесь должен быть запрос к API для проверки прав администратора
+      const response = await api.request('/admin/auth', {
+        method: 'POST',
+        body: JSON.stringify({ password: val }),
+      });
+      
+      if (response.success) {
+        APP_STATE.isAdmin = true;
+        $('#adminExitBtn').classList.remove('hidden');
+        showTab('admin'); 
+        state.loadAdminData();
+        toast('Добро пожаловать в админку');
+      } else {
+        toast('Неверный пароль', true);
+      }
+    } catch (error) {
+      toast('Ошибка авторизации', true);
+    }
+  });
+}
+
+function leaveAdmin(){
+  APP_STATE.isAdmin = false;
+  $('#adminExitBtn').classList.add('hidden');
+  showTab('profile');
+  toast('Вы вышли из админки');
+}
+
+/* ===== Renderers ===== */
+function renderProfile(){
+  if (!APP_STATE.currentUser) return;
+  
+  const u = APP_STATE.currentUser;
+  $('#username').textContent = u.username;
+  $('#email').textContent = u.email;
+  $('#uid').textContent = u.uid;
+  $('#vipBadge').textContent = `VIP ${u.vip || 0}`;
+  const pct = Math.min(100, Math.round(100*(u.xp || 0)/Math.max(1,u.nextXp || 1)));
+  $('#vipProgress').style.width = pct + '%';
+  $('#xp').textContent = `${u.xp || 0} / ${u.nextXp || 1000}`;
+  $('#toNext').textContent = Math.max(0, (u.nextXp || 1000) - (u.xp || 0));
+  $('#avatar').src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(u.avatarSeed || 'User')}`;
+  $('#kycStatus').textContent = u.kyc ? 'Пройдена' : 'Не пройдена';
+  $('#twofa').checked = !!u.twofa;
+
+  // balances
+  const cont = $('#balances');
+  cont.innerHTML = '';
+  if (u.balances && Object.keys(u.balances).length > 0) {
+    Object.entries(u.balances).forEach(([cur,amount])=>{
+      const el = document.createElement('div');
+      el.className='p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40';
+      el.innerHTML = `
+        <div class="text-xs text-slate-500">${cur}</div>
+        <div class="text-lg font-semibold">${(+amount).toFixed(2)}</div>
+      `;
+      cont.appendChild(el);
+    });
+  } else {
+    cont.innerHTML = '<div class="p-3 text-slate-500">Нет данных о балансе</div>';
+  }
+
+  // login history
+  const list = $('#loginList');
+  list.innerHTML = '';
+  if (u.logins && u.logins.length > 0) {
+    u.logins.slice(-8).reverse().forEach(l=>{
+      const li = document.createElement('li');
+      li.className='p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between';
+      li.innerHTML = `<span>${l.time}</span><span class="text-slate-500">IP: ${l.ip}</span>`;
+      list.appendChild(li);
+    });
+  } else {
+    list.innerHTML = '<li class="p-3 text-slate-500">Нет данных о входах</li>';
+  }
+}
+
+function renderTx(){
+  const q = ($('#txSearch').value||'').toLowerCase();
+  const f = $('#txFilter').value;
+  const body = $('#txTable');
+  body.innerHTML = '';
+  
+  if (APP_STATE.transactions.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">Нет транзакций</td></tr>';
+    return;
+  }
+  
+  APP_STATE.transactions
+    .filter(t => (f==='all'||t.type===f) && Object.values(t).join(' ').toLowerCase().includes(q))
+    .slice().reverse()
+    .forEach(t=>{
+      const tr = document.createElement('tr');
+      tr.className='border-t border-slate-200 dark:border-slate-700';
+      tr.innerHTML = `
+        <td class="p-3">${t.id}</td>
+        <td class="p-3">${t.date}</td>
+        <td class="p-3">${t.type}</td>
+        <td class="p-3">${t.amount}</td>
+        <td class="p-3">${t.cur}</td>
+        <td class="p-3">${t.status}</td>
+      `;
+      body.appendChild(tr);
+    });
+}
+
+function renderWallet(){
+  const sel = $('#walletCurrency');
+  sel.innerHTML = '';
+  
+  if (APP_STATE.currentUser && APP_STATE.currentUser.balances) {
+    Object.keys(APP_STATE.currentUser.balances).forEach(cur=>{
+      const o = document.createElement('option');
+      o.value = cur; o.textContent = cur; sel.appendChild(o);
+    });
+  }
+}
+
+function renderAdmin(){
+  if (!APP_STATE.isAdmin) return;
+  
+  const admin = APP_STATE.admin;
+  
+  // stats
+  $('#statUsers').textContent = admin.stats.users || 0;
+  $('#statActive').textContent = admin.stats.active || 0;
+  $('#statGgr').textContent = '$' + (admin.stats.ggr || 0).toFixed(2);
+  $('#statPending').textContent = admin.stats.pending || 0;
+
+  // users table
+  const q = ($('#userSearch').value||'').toLowerCase();
+  const rf = $('#roleFilter').value;
+  const body = $('#usersTable');
+  body.innerHTML = '';
+  
+  if (admin.users.length === 0) {
+    body.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Нет пользователей</td></tr>';
+    return;
+  }
+  
+  admin.users
+    .filter(u => (rf==='all'||u.role===rf) && Object.values(u).join(' ').toLowerCase().includes(q))
+    .forEach(u=>{
+      const tr = document.createElement('tr');
+      tr.className='border-t border-slate-200 dark:border-slate-700';
+      tr.innerHTML = `
+        <td class="p-3">${u.uid}</td>
+        <td class="p-3">${u.username}</td>
+        <td class="p-3">${((u.balances?.USDT)||0).toFixed(2)}</td>
+        <td class="p-3">${u.role||'user'}</td>
+        <td class="p-3 flex flex-wrap gap-2">
+          <button class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700" data-action="balance" data-uid="${u.uid}">Изменить баланс</button>
+          <button class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700" data-action="make-admin" data-uid="${u.uid}">Сделать админом</button>
+          <button class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700" data-action="ban" data-uid="${u.uid}">Бан</button>
+        </td>
+      `;
+      body.appendChild(tr);
+    });
+
+  // withdraws moderation
+  const wbody = $('#wdTable');
+  wbody.innerHTML = '';
+  
+  if (admin.withdrawals.length === 0) {
+    wbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">Нет заявок на вывод</td></tr>';
+    return;
+  }
+  
+  admin.withdrawals.forEach(w=>{
+    const tr = document.createElement('tr');
+    tr.className='border-t border-slate-200 dark:border-slate-700';
+    tr.innerHTML = `
+      <td class="p-3">${w.id}</td>
+      <td class="p-3">${w.uid}</td>
+      <td class="p-3">${w.amount}</td>
+      <td class="p-3">${w.cur}</td>
+      <td class="p-3">${w.status}</td>
+      <td class="p-3 flex gap-2">
+        <button class="px-2 py-1 rounded-lg bg-emerald-600 text-white" data-action="approve" data-id="${w.id}">Одобрить</button>
+        <button class="px-2 py-1 rounded-lg bg-rose-600 text-white" data-action="reject" data-id="${w.id}">Отклонить</button>
+      </td>
+    `;
+    wbody.appendChild(tr);
+  });
+
+  // games
+  const glist = $('#gamesList');
+  glist.innerHTML='';
+  
+  if (admin.games.length === 0) {
+    glist.innerHTML = '<div class="p-3 text-slate-500">Нет данных об играх</div>';
+    return;
+  }
+  
+  admin.games.forEach(g=>{
+    const row = document.createElement('div');
+    row.className='p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between';
+    row.innerHTML = `
+      <div>${g.name}</div>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" ${g.enabled?'checked':''} data-key="${g.key}" class="sr-only gameToggle">
+        <div class="w-11 h-6 bg-slate-200 peer-checked:bg-primary-600 rounded-full relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+      </label>
+    `;
+    glist.appendChild(row);
+  });
+
+  // settings
+  if (admin.settings) {
+    $('#minWithdraw').value = admin.settings.minWithdraw || 10;
+    $('#feeWithdraw').value = admin.settings.feeWithdraw || 1.5;
+  }
+}
+
+/* ===== Modal helpers ===== */
+function openModal(title, bodyNode, onOk){
+  $('#modalTitle').textContent = title;
+  const body = $('#modalBody');
+  body.innerHTML='';
+  body.appendChild(bodyNode);
+  $('#modal').classList.remove('hidden','opacity-0');
+  const ok = $('#modalOk');
+  ok.onclick = ()=>{ onOk?.(); closeModal(); };
+}
+function closeModal(){ $('#modal').classList.add('hidden'); }
+
+/* ===== Actions ===== */
+function editProfile(){
+  const u = APP_STATE.currentUser;
+  if (!u) return;
+  
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div class="grid gap-3">
+      <div>
+        <div class="text-xs text-slate-500">Никнейм</div>
+        <input id="epName" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" value="${u.username}">
+      </div>
+      <div>
+        <div class="text-xs text-slate-500">Email</div>
+        <input id="epEmail" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" value="${u.email}">
+      </div>
+      <div>
+        <div class="text-xs text-slate-500">Аватар (seed)</div>
+        <input id="epSeed" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" value="${u.avatarSeed || ''}">
+      </div>
+    </div>
+  `;
+  openModal('Редактирование профиля', wrap, ()=>{
+    const updates = {
+      username: $('#epName').value.trim() || u.username,
+      email: $('#epEmail').value.trim() || u.email,
+      avatarSeed: $('#epSeed').value.trim() || u.avatarSeed,
+    };
+    
+    state.updateUser(updates);
+  });
+}
+
+function startKyc(){
+  const el = document.createElement('div');
+  el.innerHTML = `<div class="text-sm mb-2">Загрузите документ</div><input type="file" class="w-full"/>`;
+  openModal('KYC верификация', el, ()=>{
+    state.updateUser({ kyc: true });
+  });
+}
+
+function depositWithdraw(op){
+  showTab('wallet');
+  $('#walletOp').value = op;
+  $('#walletAmount').focus();
+}
+
+async function processWallet(){
+  const cur = $('#walletCurrency').value;
+  const op = $('#walletOp').value;
+  const amt = parseFloat($('#walletAmount').value);
+  
+  if(!amt || amt<=0){ 
+    $('#walletMsg').textContent='Введите сумму'; 
+    return; 
+  }
+  
+  try {
+    const transaction = {
+      type: op,
+      amount: amt,
+      cur: cur,
+      date: new Date().toISOString().slice(0,16).replace('T',' '),
+      status: op === 'deposit' ? 'success' : 'pending'
+    };
+    
+    await state.createTransaction(transaction);
+    $('#walletMsg').textContent = op === 'deposit' ? 'Баланс пополнен' : 'Заявка на вывод создана';
+    $('#walletAmount').value = '';
+  } catch (error) {
+    $('#walletMsg').textContent = 'Ошибка: ' + error.message;
+  }
+}
+
+/* ===== Admin: balance editor ===== */
+function openBalanceEditor(uid){
+  const user = APP_STATE.admin.users.find(x=>x.uid===uid);
+  if(!user) return;
+
+  const wrap = document.createElement('div');
+  const currencies = APP_STATE.currentUser?.balances ? Object.keys(APP_STATE.currentUser.balances) : ['USDT'];
+  
+  wrap.innerHTML = `
+    <div class="grid gap-3">
+      <div class="text-sm">Изменение баланса для <b>${user.username}</b></div>
+      <div>
+        <div class="text-xs text-slate-500 mb-1">Валюта</div>
+        <select id="balCur" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent">
+          ${currencies.map(c=>`<option value="${c}">${c}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 mb-1">Сумма</div>
+        <input id="balAmt" type="number" step="0.01" min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent" placeholder="Например, 100">
+      </div>
+      <div class="flex gap-2">
+        <button id="balAdd" class="px-3 py-2 rounded-xl bg-emerald-600 text-white">Выдать</button>
+        <button id="balSub" class="px-3 py-2 rounded-xl bg-rose-600 text-white">Списать</button>
+      </div>
+    </div>
+  `;
+  openModal('Баланс пользователя', wrap, null);
+
+  $('#balAdd').onclick = async ()=>{
+    const cur = $('#balCur').value;
+    const amt = +$('#balAmt').value;
+    if(!amt || amt<=0){ toast('Введите сумму'); return; }
+    
+    try {
+      await api.updateAdminUser(uid, { 
+        operation: 'add_balance',
+        currency: cur,
+        amount: amt
+      });
+      
+      // Обновляем данные
+      state.loadAdminData();
+      toast(`Выдано ${amt} ${cur}`);
+    } catch (error) {
+      toast('Ошибка при обновлении баланса', true);
+    }
+  };
+  
+  $('#balSub').onclick = async ()=>{
+    const cur = $('#balCur').value;
+    const amt = +$('#balAmt').value;
+    if(!amt || amt<=0){ toast('Введите сумму'); return; }
+    
+    try {
+      await api.updateAdminUser(uid, { 
+        operation: 'subtract_balance',
+        currency: cur,
+        amount: amt
+      });
+      
+      // Обновляем данные
+      state.loadAdminData();
+      toast(`Списано ${amt} ${cur}`);
+    } catch (error) {
+      toast('Ошибка при обновлении баланса', true);
+    }
+  };
+}
+
+/* ===== Events ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadTheme();
+
+  // Tabs
+  $$('.tabBtn').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.tab;
+    if(id==='admin'){
+      ensureAdminAccess();
+    } else {
+      showTab(id);
+    }
+  }));
+  showTab('profile');
+
+  // Загружаем начальные данные
+  state.loadUser();
+  state.loadTransactions();
+
+  // Theme
+  $('#themeBtn').addEventListener('click', toggleTheme);
+
+  // Admin Exit buttons
+  $('#adminExitBtn').addEventListener('click', leaveAdmin);
+  $('#adminLogoutBtn').addEventListener('click', leaveAdmin);
+
+  // Profile actions
+  $('#editProfileBtn').addEventListener('click', editProfile);
+  $('#startKycBtn').addEventListener('click', startKyc);
+  $('#depositBtn').addEventListener('click', ()=>depositWithdraw('deposit'));
+  $('#withdrawBtn').addEventListener('click', ()=>depositWithdraw('withdraw'));
+  $('#twofa').addEventListener('change', (e)=>{
+    state.updateUser({ twofa: e.target.checked });
+  });
+
+  // tx filters
+  $('#txSearch').addEventListener('input', renderTx);
+  $('#txFilter').addEventListener('change', renderTx);
+
+  // wallet
+  $('#walletSubmit').addEventListener('click', processWallet);
+
+  // security
+  $('#passChangeBtn').addEventListener('click', ()=>{
+    const a=$('#passOld').value, b=$('#passNew').value, c=$('#passNew2').value;
+    if(!a||!b||!c){ $('#passMsg').textContent='Заполните все поля'; return; }
+    if(b!==c){ $('#passMsg').textContent='Пароли не совпадают'; return; }
+    $('#passMsg').textContent='Пароль обновлён';
+    toast('Пароль изменён');
+    $('#passOld').value=$('#passNew').value=$('#passNew2').value='';
+  });
+
+  // admin filters
+  $('#userSearch').addEventListener('input', ()=> APP_STATE.isAdmin && renderAdmin());
+  $('#roleFilter').addEventListener('change', ()=> APP_STATE.isAdmin && renderAdmin());
+
+  // bulk approve
+  $('#bulkApprove').addEventListener('click', async ()=>{
+    if(!APP_STATE.isAdmin) return;
+    
+    try {
+      const pendingWithdrawals = APP_STATE.admin.withdrawals.filter(w => w.status === 'pending');
+      for (const w of pendingWithdrawals) {
+        await api.updateWithdrawal(w.id, 'approved');
+      }
+      
+      // Обновляем данные
+      state.loadAdminData();
+      toast('Все заявки на вывод одобрены');
+    } catch (error) {
+      toast('Ошибка при массовом одобрении', true);
+    }
+  });
+
+  // Global click actions (admin)
+  document.addEventListener('click', async (e)=>{
+    const act = e.target.dataset?.action;
+    if(!act) return;
+
+    if(act==='make-admin'){
+      if(!APP_STATE.isAdmin) return;
+      const uid = e.target.dataset.uid;
+      
+      try {
+        await api.updateAdminUser(uid, { role: 'admin' });
+        state.loadAdminData();
+        toast('Пользователь стал администратором');
+      } catch (error) {
+        toast('Ошибка при изменении роли', true);
+      }
+    }
+    
+    if(act==='ban'){
+      if(!APP_STATE.isAdmin) return;
+      const uid = e.target.dataset.uid;
+      
+      try {
+        await api.updateAdminUser(uid, { banned: true });
+        state.loadAdminData();
+        toast('Пользователь забанен');
+      } catch (error) {
+        toast('Ошибка при бане пользователя', true);
+      }
+    }
+    
+    if(act==='approve' || act==='reject'){
+      if(!APP_STATE.isAdmin) return;
+      const id = e.target.dataset.id;
+      const status = act === 'approve' ? 'approved' : 'rejected';
+      
+      try {
+        await api.updateWithdrawal(id, status);
+        state.loadAdminData();
+        toast(`Заявка ${id}: ${status}`);
+      } catch (error) {
+        toast('Ошибка при обновлении заявки', true);
+      }
+    }
+    
+    if(act==='balance'){
+      if(!APP_STATE.isAdmin) return;
+      openBalanceEditor(e.target.dataset.uid);
+    }
+  });
+
+  // game toggles
+  $('#gamesList').addEventListener('change', async (e)=>{
+    if(e.target.classList.contains('gameToggle')){
+      if(!APP_STATE.isAdmin){ e.preventDefault(); return; }
+      const key = e.target.dataset.key;
+      
+      try {
+        await api.updateGame(key, { enabled: e.target.checked });
+        state.loadAdminData();
+        toast(`Игра ${e.target.checked ? 'включена' : 'выключена'}`);
+      } catch (error) {
+        toast('Ошибка при изменении статуса игры', true);
+      }
+    }
+  });
+
+  // settings
+  $('#minWithdraw').addEventListener('input', debounce(async (e)=>{
+    if(!APP_STATE.isAdmin) return;
+    
+    try {
+      await api.updateSettings({ minWithdraw: Number(e.target.value)||0 });
+      toast('Настройки обновлены');
+    } catch (error) {
+      toast('Ошибка при сохранении настроек', true);
+    }
+  }, 1000));
+  
+  $('#feeWithdraw').addEventListener('input', debounce(async (e)=>{
+    if(!APP_STATE.isAdmin) return;
+    
+    try {
+      await api.updateSettings({ feeWithdraw: Number(e.target.value)||0 });
+      toast('Настройки обновлены');
+    } catch (error) {
+      toast('Ошибка при сохранении настроек', true);
+    }
+  }, 1000));
+  
+  $('#sendBroadcast').addEventListener('click', async ()=>{
+    if(!APP_STATE.isAdmin) return;
+    const msg = $('#broadcastMsg').value.trim();
+    if(!msg) return;
+    
+    try {
+      await api.request('/admin/broadcast', {
+        method: 'POST',
+        body: JSON.stringify({ message: msg }),
+      });
+      
+      toast('Сообщение отправлено');
+      $('#broadcastMsg').value='';
+    } catch (error) {
+      toast('Ошибка при отправке сообщения', true);
+    }
+  });
+
+  // modal events
+  $('#modalClose').addEventListener('click', closeModal);
+  $('#modalCancel').addEventListener('click', closeModal);
+});
+
+// Вспомогательная функция для дебаунса
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+</script>
+</body>
+</html>
